@@ -1,0 +1,9 @@
+Build
+Debug
+x64
+/**/Build
+/**/Debug
+/**/x64
+
+.vs
+.idea
