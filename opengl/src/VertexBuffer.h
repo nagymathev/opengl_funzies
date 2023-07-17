@@ -9,5 +9,5 @@ public:
     ~VertexBuffer();
 
     void Bind() const;
-    void Unbind() const;
+    static void Unbind();
 };
