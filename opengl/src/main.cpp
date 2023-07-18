@@ -16,6 +16,9 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 static void APIENTRY GLErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
     std::cout << "[OpenGL Error] (" << message << ")" << std::endl;
@@ -80,9 +83,12 @@ int main(void)
 
         IndexBuffer ib(indices, 6);
 
+        glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+
         Shader shader("res/shaders/Basic.glsl");
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.8f, 0.4f, 1.0f, 1.0f);
+        shader.SetUniformMat4f("u_MVP", proj);
 
         Texture texture("res/textures/awesomeface.png");
         texture.Bind();
@@ -110,7 +116,6 @@ int main(void)
             shader.SetUniform4f("u_Color", r, 0.5f, b, 1.0f);
 
             renderer.Draw(va, ib, shader);
-            // glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
 
             if (r > 1.0f)
             {
