@@ -116,6 +116,7 @@ int main(void)
         ImGui::StyleColorsDark();
 
         glm::vec3 translation(200, 200, 0);
+        float bgColor[3] = {0.12f, 0.12f, 0.12f};
 
         float r = 0.0f;
         float b = 0.5f;
@@ -125,7 +126,7 @@ int main(void)
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
-            renderer.Clear();
+            renderer.Clear(&bgColor[0]);
 
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
@@ -158,6 +159,7 @@ int main(void)
                 ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
                 ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+                ImGui::ColorEdit3("Background Color", &bgColor[0]);
                 ImGui::End();
             }
 
