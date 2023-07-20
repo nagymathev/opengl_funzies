@@ -21,6 +21,8 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "tests/TestClearColor.h"
+#include "tests/TestMultipleObjects.h"
 
 static void APIENTRY GLErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -61,51 +63,8 @@ int main(void)
     glDebugMessageCallback(&GLErrorCallback, 0);
 
     {
-        const float positions[] = {
-             -50.0f,  -50.0f, 0.0f, 0.0f, // 0
-              50.0f,  -50.0f, 1.0f, 0.0f, // 1
-              50.0f,   50.0f, 1.0f, 1.0f, // 2
-             -50.0f,   50.0f, 0.0f, 1.0f // 3
-        };
-
-        unsigned int indices[] = {
-            0, 1, 2,
-            2, 3, 0
-        };
-
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-        VertexArray va;
-        VertexBuffer vb(positions, 4 * 4 * sizeof(float));
-
-        VertexBufferLayout layout;
-        layout.Push<float>(2);
-        layout.Push<float>(2);
-        va.AddBuffer(vb, layout);
-
-        IndexBuffer ib(indices, 6);
-
-        glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-        // glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0));
-        // Editing these two in the update
-        // glm::mat4 mvp = proj * view * model;
-
-        Shader shader("res/shaders/Basic.glsl");
-        shader.Bind();
-        shader.SetUniform4f("u_Color", 0.8f, 0.4f, 1.0f, 1.0f);
-        // shader.SetUniformMat4f("u_MVP", mvp); // Moved to the update
-
-        Texture texture("res/textures/awesomeface.png");
-        texture.Bind();
-        shader.SetUniform1i("u_Texture", 0); // Value is the texture slot we passed the texture into
-
-        // Unbind everything
-        VertexArray::Unbind();
-        VertexBuffer::Unbind();
-        IndexBuffer::Unbind();
-        Shader::Unbind();
 
         Renderer renderer;
 
@@ -115,63 +74,27 @@ int main(void)
         ImGui_ImplOpenGL3_Init();
         ImGui::StyleColorsDark();
 
-        glm::vec3 translation(200, 200, 0);
-        glm::vec3 translation2(400, 200, 0);
-        float bgColor[3] = {0.12f, 0.12f, 0.12f};
-
-        float r = 0.0f;
-        float b = 0.5f;
-        float increment = 0.025f;
+        test::TestClearColor test;
+        test::TestMultipleObjects muTest;
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
-            renderer.Clear(&bgColor[0]);
+            // renderer.Clear(&bgColor[0]);
+            renderer.Clear();
+
+            // test.OnUpdate(0.0f);
+            // test.OnRender();
+            muTest.OnUpdate(0.0f);
+            muTest.OnRender(renderer);
 
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            {
-                glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
-                glm::mat4 mvp = proj * view * model;
-                shader.Bind();
-                shader.SetUniformMat4f("u_MVP", mvp);
-
-                renderer.Draw(va, ib, shader);
-            }
-            {
-                glm::mat4 model = glm::translate(glm::mat4(1.0f), translation2);
-                glm::mat4 mvp = proj * view * model;
-                shader.Bind();
-                shader.SetUniformMat4f("u_MVP", mvp);
-
-                renderer.Draw(va, ib, shader);
-            }
-
-            if (r > 1.0f)
-            {
-                increment = -increment;
-            }
-            else if (r < 0.0f)
-            {
-                increment = -increment;
-            }
-
-            r += increment;
-            b += increment;
-
-            {
-                static float f = 0.0f;
-
-                ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
-                ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);
-                ImGui::SliderFloat3("Translation2", &translation2.x, 0.0f, 960.0f);
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-                ImGui::ColorEdit3("Background Color", &bgColor[0]);
-                ImGui::End();
-            }
+            // test.OnImGuiRender();
+            muTest.OnImGuiRender();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

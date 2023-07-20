@@ -18,5 +18,6 @@ class Renderer
 {
 public:
     void Clear(float colors[3]) const;
+    void Clear() const;
     void Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
 };
